@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 from collections import deque
-from random import seed
-from random import random
 from numpy.linalg import matrix_power
 import matplotlib.pyplot as plt
 
