@@ -5,15 +5,18 @@ from numpy.linalg import matrix_power
 import matplotlib.pyplot as plt
 
 deltaT = 1
+l = 0.005
+muC = 0.05
+muP = 0.01
 C = 0.6
 n = 1000
 
 A = np.array([
-  [1-0.01*deltaT, 0.05*deltaT, 0.05*deltaT, 0.01*deltaT, 0.05*deltaT],
-  [0.01*deltaT*C, 0.0, 0.0, 0.0, 0.0],
-  [0.0, 0.005*deltaT*C, 0.0, 0.005*deltaT*C, 0.0],
-  [0.005*deltaT*(1 - C), 0.0, 0.0, 0.0, 0.0],
-  [0.005*deltaT*(1 - C), 0.005*deltaT*(1 - C), 0.005*deltaT*C, 0.005*deltaT*(1 - C), 1 - 0.05*deltaT]])
+  [1-2*l*deltaT, muC*deltaT, muC*deltaT, muP*deltaT, muC*deltaT],
+  [2*l*deltaT*C, 0.0, 0.0, 0.0, 0.0],
+  [0.0, l*deltaT*C, 0.0, l*deltaT*C, 0.0],
+  [l*deltaT*(1 - C), 0.0, 0.0, 0.0, 0.0],
+  [l*deltaT*(1 - C), l*deltaT*(1 - C), l*deltaT, l*deltaT*(1 - C), 1 - muC*deltaT]])
 print("A = \n", A)
 print("================================")
 
