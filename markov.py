@@ -1,24 +1,17 @@
 import numpy as np
-import pandas as pd
-from collections import deque
 from numpy.linalg import matrix_power
 import matplotlib.pyplot as plt
+
+exercise = 'disp' # 'disp' or 'conf'
 
 deltaT = 1
 l = 0.005
 muC = 0.05
-muP = 0.01
-C = 0.6
+muP = 0.00
+cArray = [0.6, 0.7, 0.8, 0.9, 1]
 n = 1000
 
-A = np.array([
-  [1-2*l*deltaT, muC*deltaT, muC*deltaT, muP*deltaT, muC*deltaT],
-  [2*l*deltaT*C, 0.0, 0.0, 0.0, 0.0],
-  [0.0, l*deltaT*C, 0.0, l*deltaT*C, 0.0],
-  [l*deltaT*(1 - C), 0.0, 0.0, 0.0, 0.0],
-  [l*deltaT*(1 - C), l*deltaT*(1 - C), l*deltaT, l*deltaT*(1 - C), 1 - muC*deltaT]])
-print("A = \n", A)
-print("================================")
+ax = plt.gca()
 
 initialState = np.array([
   [1.0], 
@@ -27,27 +20,43 @@ initialState = np.array([
   [0.0], 
   [0.0]])
 
-measures = deque()
-for t in range(n):
-  Pt = np.matmul(matrix_power(A, t), initialState)
-  Rt = Pt[0][0] + Pt[1][0] + Pt[2][0] + Pt[3][0]
-  if(t % (n / 100) == 0): print(f'R({t}) = ', Rt)
-  measures.append([t, Rt])
 print("================================")
+for c in cArray:
+  print('C = ' + str(c))
+  if (exercise == 'disp'):
+    A = np.array([
+      [1-2*l*deltaT, muC*deltaT, muC*deltaT, muP*deltaT, muC*deltaT],
+      [2*l*deltaT*c, 1 - (muC + l)*deltaT, 0.0, 0.0, 0.0],
+      [0.0, l*deltaT*c, 1 - (muC + l)*deltaT, l*deltaT*c, 0.0],
+      [l*deltaT*(1 - c), 0.0, 0.0, 1 - (muP + l)*deltaT, 0.0],
+      [l*deltaT*(1 - c), l*deltaT*(1 - c), l*deltaT, l*deltaT*(1 - c), 1 - muC*deltaT]
+    ])
+  elif (exercise == 'conf'):
+    A = np.array([
+      [1-2*l*deltaT, muC*deltaT, muC*deltaT, muP*deltaT, 0.0],
+      [2*l*deltaT*c, 1 - (muC + l)*deltaT, 0.0, 0.0, 0.0],
+      [0.0, l*deltaT*c, 1 - (muC + l)*deltaT, l*deltaT*c, 0.0],
+      [l*deltaT*(1 - c), 0.0, 0.0, 1 - (muP + l)*deltaT, 0.0],
+      [l*deltaT*(1 - c), l*deltaT*(1 - c), l*deltaT, l*deltaT*(1 - c), 1]
+    ])
+  print("A = \n", A)
 
-# print("measures = \n", measures)
-stateHist = np.array(measures)
-dfDistrHist = pd.DataFrame(stateHist, columns=list('xy'))
+  time = []
+  pOp = []
+  for t in range(n):
+    Pt = np.matmul(matrix_power(A, t), initialState)
+    Rfailure = Pt[0][-1]
+    time.append(t*deltaT)
+    pOp.append(Rfailure)
 
-# print("stateHist = \n", stateHist)
-# print("dfDistrHist = \n", dfDistrHist)
+  print('Passintotica = ' + str(Rfailure))
+  ax.plot(time, pOp, label="C=" + str(c))
+  mttf = np.trapz(pOp, dx=deltaT)
+  print("Area = ", mttf)
+  print("================================")
 
-
-mttf = np.trapz(dfDistrHist['y']) * deltaT
-print("MTTF = ", mttf)
-
-dfDistrHist.plot(x='x', y='y', label="P(t)")
-plt.title('P(nΔt) Plot')
-plt.xlabel('tempo(h)')
-plt.ylabel('confiabilidade')
+ax.set_title('Gráfico P(nΔt)')
+ax.set_xlabel('tempo(h)')
+ax.set_ylabel('confiabilidade')
+ax.legend()
 plt.show()
