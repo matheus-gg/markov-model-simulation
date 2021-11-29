@@ -2,14 +2,14 @@ import numpy as np
 from numpy.linalg import matrix_power
 import matplotlib.pyplot as plt
 
-exercise = 'disp' # 'disp' or 'conf'
+exercise = 'conf' # 'disp' or 'conf'
 
 deltaT = 1
 l = 0.005
 muC = 0.05
 muP = 0.00
 cArray = [0.6, 0.7, 0.8, 0.9, 1]
-n = 1000
+n = 50000
 
 ax = plt.gca()
 
@@ -45,11 +45,11 @@ for c in cArray:
   pOp = []
   for t in range(n):
     Pt = np.matmul(matrix_power(A, t), initialState)
-    Rfailure = Pt[0][-1]
+    Rfailure = Pt[4][0]
     time.append(t*deltaT)
-    pOp.append(Rfailure)
+    pOp.append(1-Rfailure)
 
-  print('Passintotica = ' + str(Rfailure))
+  print('Passintotica = ' + str(1-Rfailure))
   ax.plot(time, pOp, label="C=" + str(c))
   mttf = np.trapz(pOp, dx=deltaT)
   print("Area = ", mttf)
